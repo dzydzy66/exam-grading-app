@@ -1,0 +1,10 @@
+[project]
+requires = ["nodejs-24", "python-3.11"]
+
+[dev]
+build = ["bash", "-c", "cd ${COZE_WORKSPACE_PATH}/backend && pip install -r requirements.txt && cd ${COZE_WORKSPACE_PATH}/frontend && pnpm install"]
+run = ["bash", "-c", "cd ${COZE_WORKSPACE_PATH} && python backend/main.py"]
+
+[deploy]
+build = ["bash", "-c", "cd ${COZE_WORKSPACE_PATH}/backend && pip install -r requirements.txt && cd ${COZE_WORKSPACE_PATH}/frontend && pnpm install && pnpm build"]
+run = ["bash", "-c", "cd ${COZE_WORKSPACE_PATH} && python backend/main.py"]

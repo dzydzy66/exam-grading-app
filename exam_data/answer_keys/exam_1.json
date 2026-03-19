@@ -1,0 +1,67 @@
+{
+  "exam_id": "math_midterm_2024",
+  "subject": "数学",
+  "exam_name": "数学期中考试",
+  "total_score": 100,
+  "questions": [
+    {
+      "number": 1,
+      "type": "选择题",
+      "content": "下列哪个是质数？A. 4  B. 5  C. 6  D. 8",
+      "correct_answer": "B",
+      "score": 10,
+      "analysis": "5只能被1和5整除，是质数。4、6、8都能被2整除，是合数。"
+    },
+    {
+      "number": 2,
+      "type": "选择题",
+      "content": "15 + 27 = ?",
+      "correct_answer": "42",
+      "score": 10,
+      "analysis": "15 + 27 = 42，计算正确。"
+    },
+    {
+      "number": 3,
+      "type": "填空题",
+      "content": "100 - 36 = ____",
+      "correct_answer": "64",
+      "score": 15,
+      "analysis": "100 - 36 = 64。"
+    },
+    {
+      "number": 4,
+      "type": "填空题",
+      "content": "8 × 9 = ____",
+      "correct_answer": "72",
+      "score": 15,
+      "analysis": "8 × 9 = 72。"
+    },
+    {
+      "number": 5,
+      "type": "计算题",
+      "content": "计算：125 + 375 = ?",
+      "correct_answer": "500",
+      "score": 20,
+      "analysis": "125 + 375 = 500。"
+    },
+    {
+      "number": 6,
+      "type": "计算题",
+      "content": "计算：1000 - 456 = ?",
+      "correct_answer": "544",
+      "score": 20,
+      "analysis": "1000 - 456 = 544。"
+    },
+    {
+      "number": 7,
+      "type": "应用题",
+      "content": "小明有50元，买了3支铅笔，每支2元，还剩多少元？",
+      "correct_answer": "44元",
+      "score": 10,
+      "analysis": "50 - 3 × 2 = 50 - 6 = 44元。"
+    }
+  ],
+  "created_date": "2024-01-15",
+  "last_modified": "2024-01-15",
+  "created_by": "李老师"
+}
