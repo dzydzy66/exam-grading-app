@@ -250,9 +250,13 @@ async def get_grades(student_id: int, db: Session = Depends(get_db)):
 
 # ============== 生成班级报告接口 ==============
 
+class GenerateReportRequest(BaseModel):
+    exam_id: int
+
 @router.post("/api/generate-class-report")
-async def generate_class_report(exam_id: int, db: Session = Depends(get_db)):
+async def generate_class_report(request: GenerateReportRequest, db: Session = Depends(get_db)):
     """生成班级报告"""
+    exam_id = request.exam_id
     exam = db.query(Exam).filter(Exam.id == exam_id).first()
     if not exam:
         return {"success": False, "message": "考试不存在"}
@@ -489,11 +493,12 @@ async def init_data(db: Session = Depends(get_db)):
     teacher1 = db.query(Teacher).filter(Teacher.account == "teacher001").first()
     teacher2 = db.query(Teacher).filter(Teacher.account == "teacher002").first()
     
-    # 创建测试考试
+    # 创建测试考试（考试名称不包含科目）
     exams_data = [
-        {"name": "数学期中考试", "subject": "数学", "class_name": "三年级一班", "teacher_id": teacher1.id if teacher1 else 1, "total_score": 100},
-        {"name": "语文期中考试", "subject": "语文", "class_name": "三年级一班", "teacher_id": teacher2.id if teacher2 else 2, "total_score": 100},
-        {"name": "数学期中考试", "subject": "数学", "class_name": "三年级二班", "teacher_id": teacher1.id if teacher1 else 1, "total_score": 100},
+        {"name": "第一次考试", "subject": "数学", "class_name": "三年级一班", "teacher_id": teacher1.id if teacher1 else 1, "total_score": 100},
+        {"name": "期中考试", "subject": "语文", "class_name": "三年级一班", "teacher_id": teacher2.id if teacher2 else 2, "total_score": 100},
+        {"name": "第二次考试", "subject": "数学", "class_name": "三年级二班", "teacher_id": teacher1.id if teacher1 else 1, "total_score": 100},
+        {"name": "期末考试", "subject": "数学", "class_name": "三年级一班", "teacher_id": teacher1.id if teacher1 else 1, "total_score": 100},
     ]
     
     for data in exams_data:
@@ -579,5 +584,34 @@ async def init_data(db: Session = Depends(get_db)):
     answer_key_path = os.path.join(ANSWER_KEYS_DIR, "exam_1.json")
     with open(answer_key_path, "w", encoding="utf-8") as f:
         json.dump(answer_key, f, ensure_ascii=False, indent=2)
+    
+    # 创建模拟成绩数据（用于测试班级报告）
+    import random
+    
+    # 获取新创建的考试（第一次考试，id=4）
+    exam = db.query(Exam).filter(Exam.name == "第一次考试").first()
+    if exam:
+        # 获取三年级一班的学生
+        students = db.query(Student).filter(Student.class_name == "三年级一班").all()
+        
+        for student in students:
+            # 检查是否已有成绩
+            existing_grade = db.query(Grade).filter(
+                Grade.student_id == student.id,
+                Grade.exam_id == exam.id
+            ).first()
+            
+            if not existing_grade:
+                # 生成随机成绩
+                score = random.randint(60, 100)
+                grade = Grade(
+                    student_id=student.id,
+                    exam_id=exam.id,
+                    score=score,
+                    report_file=f"student_{student.name}_exam_{exam.id}.html"
+                )
+                db.add(grade)
+        
+        db.commit()
     
     return {"success": True, "message": "测试数据初始化完成"}

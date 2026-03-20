@@ -13,7 +13,7 @@
             <el-option 
               v-for="exam in exams" 
               :key="exam.id" 
-              :label="`${exam.name} - ${exam.subject}`" 
+              :label="exam.name" 
               :value="exam.id"
             />
           </el-select>
