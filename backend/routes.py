@@ -16,8 +16,8 @@ from database import get_db, init_db, Student, Teacher, Exam, Grade, Upload, Ans
 
 router = APIRouter()
 
-# 数据目录
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "exam_data")
+# 数据目录 - 使用 /tmp 作为数据目录（生产环境可写）
+DATA_DIR = os.environ.get("DATA_DIR", "/tmp/exam_data")
 ANSWER_KEYS_DIR = os.path.join(DATA_DIR, "answer_keys")
 REPORTS_DIR = os.path.join(DATA_DIR, "reports")
 UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")

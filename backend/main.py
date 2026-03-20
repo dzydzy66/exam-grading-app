@@ -3,21 +3,29 @@
 """
 import os
 import sys
+
+# 数据目录 - 使用 /tmp 作为数据目录（生产环境可写）
+DATA_DIR = "/tmp/exam_data"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# 设置数据库路径环境变量（必须在导入 database 之前）
+os.environ["DB_PATH"] = os.path.join(DATA_DIR, "exam.db")
+
+# 添加后端目录到路径
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-# 添加后端目录到路径
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
 from database import init_db, SessionLocal, Student, Teacher, Exam, AnswerKey
 from routes import router
 
 # 静态文件目录
 FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "exam_data")
 REPORTS_DIR = os.path.join(DATA_DIR, "reports")
 UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
 
@@ -83,24 +91,34 @@ def init_sample_data():
         
     except Exception as e:
         print(f"初始化数据失败: {e}")
+        import traceback
+        traceback.print_exc()
         db.rollback()
     finally:
         db.close()
 
 
-# 在模块加载时初始化数据库和数据
-print("初始化数据库...")
-init_db()
-print("数据库初始化完成")
-init_sample_data()
-print(f"报告目录: {REPORTS_DIR}")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用生命周期管理"""
+    # 启动时初始化
+    print("正在初始化数据库...")
+    init_db()
+    print("数据库初始化完成")
+    init_sample_data()
+    print(f"数据目录: {DATA_DIR}")
+    print(f"报告目录: {REPORTS_DIR}")
+    yield
+    # 关闭时清理
+    print("应用关闭")
 
 
 # 创建FastAPI应用
 app = FastAPI(
     title="试卷批改系统",
     description="支持学生上传试卷自动批改，老师查看班级整体成绩报告",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS配置

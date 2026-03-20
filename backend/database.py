@@ -7,8 +7,8 @@ from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 import os
 
-# 数据库路径
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "exam_data", "exam.db")
+# 数据库路径 - 优先使用环境变量，否则使用 /tmp 目录
+DB_PATH = os.environ.get("DB_PATH", "/tmp/exam_data/exam.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
 # 数据库引擎
