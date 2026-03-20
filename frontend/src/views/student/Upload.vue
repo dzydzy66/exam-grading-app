@@ -8,10 +8,21 @@
       </template>
       
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="考试场次" prop="examId">
-          <el-select v-model="form.examId" placeholder="请选择考试场次" style="width: 100%">
+        <el-form-item label="选择班级" prop="className">
+          <el-select v-model="form.className" placeholder="请选择班级" style="width: 100%" @change="handleClassChange">
             <el-option 
-              v-for="exam in exams" 
+              v-for="cls in classes" 
+              :key="cls" 
+              :label="cls" 
+              :value="cls"
+            />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="考试场次" prop="examId">
+          <el-select v-model="form.examId" placeholder="请选择考试场次" style="width: 100%" :disabled="!form.className">
+            <el-option 
+              v-for="exam in filteredExams" 
               :key="exam.id" 
               :label="exam.name" 
               :value="exam.id"
@@ -72,16 +83,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type UploadProps } from 'element-plus'
-import { getExams, uploadExam, getUploadStatus } from '@/api'
+import { getExams, uploadExam, getUploadStatus, getClasses } from '@/api'
 import { useUserStore } from '@/stores/user'
 
 interface Exam {
   id: number
   name: string
-  subject: string
   class_name: string
 }
 
@@ -89,23 +99,39 @@ const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const classes = ref<string[]>([])
 const exams = ref<Exam[]>([])
 const showProgressDialog = ref(false)
 const progress = ref(0)
 const progressStatus = ref<'' | 'success' | 'warning' | 'exception'>('')
 
 const form = reactive({
+  className: '' as string,
   examId: null as number | null,
   image: null as File | null
 })
 
 const rules = {
+  className: [
+    { required: true, message: '请选择班级', trigger: 'change' }
+  ],
   examId: [
     { required: true, message: '请选择考试场次', trigger: 'change' }
   ],
   image: [
     { required: true, message: '请上传试卷图片', trigger: 'change' }
   ]
+}
+
+// 过滤当前班级的考试
+const filteredExams = computed(() => {
+  if (!form.className) return []
+  return exams.value.filter(e => e.class_name === form.className)
+})
+
+// 班级变化时清空考试选择
+const handleClassChange = () => {
+  form.examId = null
 }
 
 // 文件变化处理
@@ -171,7 +197,7 @@ const handleSubmit = async () => {
 
 // 检查批改状态
 const checkGradingStatus = async (uploadId: number) => {
-  const maxAttempts = 30 // 最多检查30次
+  const maxAttempts = 30
   let attempts = 0
   
   const check = async (): Promise<void> => {
@@ -197,7 +223,6 @@ const checkGradingStatus = async (uploadId: number) => {
         return
       }
       
-      // 继续等待
       if (attempts < maxAttempts) {
         progress.value = Math.min(30 + attempts * 2, 90)
         await new Promise(resolve => setTimeout(resolve, 2000))
@@ -220,7 +245,7 @@ const goToQuery = () => {
   router.push('/student/query')
 }
 
-// 加载考试列表
+// 加载数据
 onMounted(async () => {
   const user = userStore.getUser()
   if (!user) {
@@ -228,11 +253,21 @@ onMounted(async () => {
     return
   }
   
+  // 如果学生有班级信息，自动选择
+  if (user.class_name) {
+    form.className = user.class_name
+  }
+  
   try {
-    const res: any = await getExams()
-    exams.value = res
+    // 加载班级列表
+    const classRes: any = await getClasses()
+    classes.value = classRes.classes || []
+    
+    // 加载考试列表
+    const examRes: any = await getExams()
+    exams.value = examRes
   } catch (error) {
-    ElMessage.error('加载考试列表失败')
+    ElMessage.error('加载数据失败')
   }
 })
 </script>

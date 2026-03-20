@@ -3,18 +3,13 @@
     <el-card class="login-card">
       <template #header>
         <div class="card-header">
-          <el-icon class="header-icon"><User /></el-icon>
           <span>学生登录</span>
         </div>
       </template>
       
       <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
-        <el-form-item label="账号" prop="account">
-          <el-input 
-            v-model="form.account" 
-            placeholder="请输入学生账号"
-            prefix-icon="User"
-          />
+        <el-form-item label="学号" prop="account">
+          <el-input v-model="form.account" placeholder="请输入学号（如 S2201001）" />
         </el-form-item>
         
         <el-form-item>
@@ -22,14 +17,19 @@
             登录
           </el-button>
         </el-form-item>
-        
-        <el-form-item>
-          <el-button type="text" @click="goBack">返回首页</el-button>
-        </el-form-item>
       </el-form>
       
-      <div class="test-hint">
-        <el-tag type="info">测试账号: student001, student002, student003</el-tag>
+      <div class="info-text">
+        <el-alert title="本系统仅用于《计算机组成与体系结构》课程试卷评阅" type="info" :closable="false" show-icon />
+      </div>
+      
+      <div class="test-accounts">
+        <p>测试账号：</p>
+        <ul>
+          <li>S2201001 - 李明（计算机2201班）</li>
+          <li>S2202001 - 刘洋（计算机2202班）</li>
+          <li>S2203001 - 孙华（计算机2203班）</li>
+        </ul>
       </div>
     </el-card>
   </div>
@@ -39,7 +39,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance } from 'element-plus'
-import { login } from '@/api'
+import { loginStudent } from '@/api'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
@@ -53,7 +53,7 @@ const form = reactive({
 
 const rules = {
   account: [
-    { required: true, message: '请输入学生账号', trigger: 'blur' }
+    { required: true, message: '请输入学号', trigger: 'blur' }
   ]
 }
 
@@ -65,11 +65,13 @@ const handleLogin = async () => {
     
     loading.value = true
     try {
-      const res: any = await login(form.account, 'student')
+      const res: any = await loginStudent(form.account)
+      
       if (res.success) {
         userStore.setUser({
           id: res.user_id,
           name: res.name,
+          class_name: res.class_name,
           role: 'student'
         })
         ElMessage.success('登录成功')
@@ -84,10 +86,6 @@ const handleLogin = async () => {
     }
   })
 }
-
-const goBack = () => {
-  router.push('/')
-}
 </script>
 
 <style scoped>
@@ -95,30 +93,42 @@ const goBack = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 200px);
+  min-height: 100vh;
+  padding: 20px;
 }
 
 .login-card {
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   border-radius: 16px;
 }
 
 .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  text-align: center;
   font-size: 20px;
   font-weight: 600;
 }
 
-.header-icon {
-  font-size: 24px;
-  color: #667eea;
+.info-text {
+  margin-top: 20px;
 }
 
-.test-hint {
-  text-align: center;
-  margin-top: 20px;
+.test-accounts {
+  margin-top: 15px;
+  padding: 10px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.test-accounts p {
+  margin: 0 0 5px 0;
+  font-weight: 600;
+}
+
+.test-accounts ul {
+  margin: 0;
+  padding-left: 20px;
 }
 </style>

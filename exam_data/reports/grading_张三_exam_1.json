@@ -12,11 +12,11 @@
       "number": 1,
       "type": "选择题",
       "content": "下列哪个是质数？A. 4  B. 5  C. 6  D. 8",
-      "student_answer": "B",
+      "student_answer": "A",
       "correct_answer": "B",
       "score": 10,
-      "earned_score": 10,
-      "is_correct": true,
+      "earned_score": 0,
+      "is_correct": false,
       "analysis": "5只能被1和5整除，是质数。4、6、8都能被2整除，是合数。"
     },
     {
@@ -34,11 +34,11 @@
       "number": 3,
       "type": "填空题",
       "content": "100 - 36 = ____",
-      "student_answer": "错误答案",
+      "student_answer": "64",
       "correct_answer": "64",
       "score": 15,
-      "earned_score": 0,
-      "is_correct": false,
+      "earned_score": 15,
+      "is_correct": true,
       "analysis": "100 - 36 = 64。"
     },
     {
@@ -78,31 +78,31 @@
       "number": 7,
       "type": "应用题",
       "content": "小明有50元，买了3支铅笔，每支2元，还剩多少元？",
-      "student_answer": "44元",
+      "student_answer": "错误",
       "correct_answer": "44元",
       "score": 10,
-      "earned_score": 10,
-      "is_correct": true,
+      "earned_score": 5,
+      "is_correct": false,
       "analysis": "50 - 3 × 2 = 50 - 6 = 44元。"
     }
   ],
   "summary": {
     "total_earned": 85,
-    "accuracy_rate": "86%",
-    "correct_count": 6,
-    "wrong_count": 1,
+    "accuracy_rate": "71%",
+    "correct_count": 5,
+    "wrong_count": 2,
     "score_distribution": {
       "选择题": {
-        "earned": 20,
+        "earned": 10,
         "total": 20,
-        "correct": 2,
-        "wrong": 0
-      },
-      "填空题": {
-        "earned": 15,
-        "total": 30,
         "correct": 1,
         "wrong": 1
+      },
+      "填空题": {
+        "earned": 30,
+        "total": 30,
+        "correct": 2,
+        "wrong": 0
       },
       "计算题": {
         "earned": 40,
@@ -111,10 +111,10 @@
         "wrong": 0
       },
       "应用题": {
-        "earned": 10,
+        "earned": 5,
         "total": 10,
-        "correct": 1,
-        "wrong": 0
+        "correct": 0,
+        "wrong": 1
       }
     }
   }

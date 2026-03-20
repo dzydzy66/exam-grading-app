@@ -12,7 +12,7 @@ import uvicorn
 # 添加后端目录到路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from database import init_db
+from database import init_db, SessionLocal, Student, Teacher, Exam, AnswerKey
 from routes import router
 
 # 创建FastAPI应用
@@ -41,6 +41,68 @@ UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
 os.makedirs(REPORTS_DIR, exist_ok=True)
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
+
+def init_sample_data():
+    """初始化示例数据"""
+    db = SessionLocal()
+    try:
+        # 检查是否已有数据
+        if db.query(Teacher).first() is not None:
+            print("数据已存在，跳过初始化")
+            return
+        
+        # 创建老师
+        teacher = Teacher(account="T001", name="张老师")
+        db.add(teacher)
+        db.commit()
+        db.refresh(teacher)
+        
+        # 班级列表
+        classes = ["计算机2201班", "计算机2202班", "计算机2203班"]
+        
+        # 考试类型
+        exam_types = ["第一次考试", "第二次考试", "第三次考试", "期中考试", "期末考试"]
+        
+        # 为每个班级创建所有考试场次
+        for class_name in classes:
+            for exam_name in exam_types:
+                exam = Exam(
+                    name=exam_name,
+                    class_name=class_name,
+                    teacher_id=teacher.id,
+                    total_score=100
+                )
+                db.add(exam)
+        
+        # 创建示例学生
+        students_data = [
+            ("S2201001", "李明", "计算机2201班"),
+            ("S2201002", "王芳", "计算机2201班"),
+            ("S2201003", "张伟", "计算机2201班"),
+            ("S2202001", "刘洋", "计算机2202班"),
+            ("S2202002", "陈静", "计算机2202班"),
+            ("S2202003", "赵强", "计算机2202班"),
+            ("S2203001", "孙华", "计算机2203班"),
+            ("S2203002", "周琳", "计算机2203班"),
+            ("S2203003", "吴涛", "计算机2203班"),
+        ]
+        
+        for account, name, class_name in students_data:
+            student = Student(account=account, name=name, class_name=class_name)
+            db.add(student)
+        
+        db.commit()
+        print("初始数据创建完成")
+        print(f"- 创建老师: {teacher.name}")
+        print(f"- 创建考试: {len(classes) * len(exam_types)} 场")
+        print(f"- 创建学生: {len(students_data)} 人")
+        
+    except Exception as e:
+        print(f"初始化数据失败: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
 # 注册 API 路由（必须在静态文件挂载之前）
 app.include_router(router)
 
@@ -51,6 +113,10 @@ async def startup_event():
     # 初始化数据库
     init_db()
     print("数据库初始化完成")
+    
+    # 创建初始数据
+    init_sample_data()
+    
     print(f"报告目录: {REPORTS_DIR}")
     print(f"目录是否存在: {os.path.exists(REPORTS_DIR)}")
 

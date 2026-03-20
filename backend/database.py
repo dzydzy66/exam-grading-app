@@ -1,11 +1,10 @@
 """
 数据库模型定义
 """
-from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, DateTime, Enum
+from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
-import enum
 import os
 
 # 数据库路径
@@ -16,14 +15,6 @@ os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 engine = create_engine(f"sqlite:///{DB_PATH}", connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-
-
-class UploadStatus(enum.Enum):
-    """上传状态"""
-    PENDING = "pending"
-    PROCESSING = "processing"
-    COMPLETED = "completed"
-    FAILED = "failed"
 
 
 class Student(Base):
@@ -55,15 +46,14 @@ class Teacher(Base):
 
 
 class Exam(Base):
-    """考试表"""
+    """考试表 - 《计算机组成与体系结构》"""
     __tablename__ = "exams"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    subject = Column(String(50), nullable=False)
-    class_name = Column(String(50), nullable=False)
+    name = Column(String(100), nullable=False)  # 第一次考试、期中考试、期末考试
+    class_name = Column(String(50), nullable=False)  # 班级
     teacher_id = Column(Integer, ForeignKey("teachers.id"), nullable=False)
-    answer_key_file = Column(String(100), nullable=True)
+    answer_key_file = Column(String(100), nullable=True)  # 标准答案文件名
     total_score = Column(Integer, default=100)
     created_at = Column(DateTime, default=datetime.now)
     
@@ -97,12 +87,23 @@ class Upload(Base):
     student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
     exam_id = Column(Integer, ForeignKey("exams.id"), nullable=False)
     image_file = Column(String(200), nullable=False)
-    status = Column(String(20), default=UploadStatus.PENDING.value)
+    status = Column(String(20), default="pending")
     created_at = Column(DateTime, default=datetime.now)
     
     # 关系
     student = relationship("Student", back_populates="uploads")
     exam = relationship("Exam", back_populates="uploads")
+
+
+class AnswerKey(Base):
+    """标准答案表"""
+    __tablename__ = "answer_keys"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    exam_id = Column(Integer, ForeignKey("exams.id"), nullable=False, unique=True)
+    content = Column(Text, nullable=False)  # JSON格式的标准答案
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now)
 
 
 def get_db():

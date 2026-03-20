@@ -1,0 +1,88 @@
+{
+  "exam_info": {
+    "subject": "数学",
+    "total_score": 100,
+    "student_name": "张三",
+    "exam_date": "2026-03-20",
+    "class_name": "三年级一班",
+    "teacher_name": "李老师"
+  },
+  "questions": [
+    {
+      "number": 1,
+      "type": "选择题",
+      "content": "题目1",
+      "student_answer": "B",
+      "correct_answer": "B",
+      "score": 20,
+      "earned_score": 20,
+      "is_correct": true,
+      "analysis": ""
+    },
+    {
+      "number": 2,
+      "type": "填空题",
+      "content": "题目2",
+      "student_answer": "答案",
+      "correct_answer": "答案",
+      "score": 20,
+      "earned_score": 20,
+      "is_correct": true,
+      "analysis": ""
+    },
+    {
+      "number": 3,
+      "type": "计算题",
+      "content": "题目3",
+      "student_answer": "结果",
+      "correct_answer": "结果",
+      "score": 30,
+      "earned_score": 30,
+      "is_correct": true,
+      "analysis": ""
+    },
+    {
+      "number": 4,
+      "type": "应用题",
+      "content": "题目4",
+      "student_answer": "解答",
+      "correct_answer": "解答",
+      "score": 30,
+      "earned_score": 30,
+      "is_correct": true,
+      "analysis": ""
+    }
+  ],
+  "summary": {
+    "total_earned": 100,
+    "accuracy_rate": "100%",
+    "correct_count": 4,
+    "wrong_count": 0,
+    "score_distribution": {
+      "选择题": {
+        "earned": 20,
+        "total": 20,
+        "correct": 1,
+        "wrong": 0
+      },
+      "填空题": {
+        "earned": 20,
+        "total": 20,
+        "correct": 1,
+        "wrong": 0
+      },
+      "计算题": {
+        "earned": 30,
+        "total": 30,
+        "correct": 1,
+        "wrong": 0
+      },
+      "应用题": {
+        "earned": 30,
+        "total": 30,
+        "correct": 1,
+        "wrong": 0
+      }
+    }
+  }
+}

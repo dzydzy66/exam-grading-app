@@ -3,13 +3,13 @@
     <el-card class="query-card">
       <template #header>
         <div class="card-header">
-          <span>成绩查询</span>
+          <span>成绩查询 - {{ SUBJECT_NAME }}</span>
         </div>
       </template>
       
       <el-table :data="grades" stripe v-loading="loading" empty-text="暂无成绩记录">
-        <el-table-column prop="exam_name" label="考试名称" width="200" />
-        <el-table-column prop="subject" label="科目" width="100" />
+        <el-table-column prop="exam_name" label="考试名称" width="150" />
+        <el-table-column prop="subject" label="科目" width="180" />
         <el-table-column prop="score" label="得分" width="100">
           <template #default="{ row }">
             <el-tag :type="getScoreTagType(row.score)">{{ row.score }}</el-tag>
@@ -52,6 +52,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getGrades, getReportUrl } from '@/api'
 import { useUserStore } from '@/stores/user'
+
+const SUBJECT_NAME = '计算机组成与体系结构'
 
 interface Grade {
   id: number

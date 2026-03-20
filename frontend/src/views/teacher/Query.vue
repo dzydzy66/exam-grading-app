@@ -8,12 +8,22 @@
       </template>
       
       <el-form :inline="true" class="search-form">
-        <el-form-item label="选择考试">
-          <el-select v-model="selectedExamId" placeholder="请选择考试场次" @change="handleExamChange">
+        <el-form-item label="选择班级">
+          <el-select v-model="selectedClassName" placeholder="请选择班级" @change="handleClassChange">
             <el-option 
-              v-for="exam in exams" 
+              v-for="cls in classes" 
+              :key="cls" 
+              :label="cls" 
+              :value="cls"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="考试场次">
+          <el-select v-model="selectedExamId" placeholder="请选择考试场次" :disabled="!selectedClassName">
+            <el-option 
+              v-for="exam in filteredExams" 
               :key="exam.id" 
-              :label="`${exam.name} (${exam.class_name})`" 
+              :label="exam.name" 
               :value="exam.id"
             />
           </el-select>
@@ -41,24 +51,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getExams, getReportUrl } from '@/api'
+import { getExams, getClasses, getReportUrl } from '@/api'
 import { useUserStore } from '@/stores/user'
 
 interface Exam {
   id: number
   name: string
-  subject: string
   class_name: string
 }
 
 const router = useRouter()
 const userStore = useUserStore()
+const classes = ref<string[]>([])
 const exams = ref<Exam[]>([])
+const selectedClassName = ref<string>('')
 const selectedExamId = ref<number | null>(null)
 const reportUrl = ref('')
+
+// 过滤当前班级的考试
+const filteredExams = computed(() => {
+  if (!selectedClassName.value) return []
+  return exams.value.filter(e => e.class_name === selectedClassName.value)
+})
+
+// 班级变化处理
+const handleClassChange = () => {
+  selectedExamId.value = null
+  reportUrl.value = ''
+}
 
 // 查看报告
 const viewReport = () => {
@@ -71,17 +94,12 @@ const viewReport = () => {
   reportUrl.value = getReportUrl(fileName)
 }
 
-// 考试变化处理
-const handleExamChange = () => {
-  reportUrl.value = ''
-}
-
 // 跳转到上传页面
 const goToUpload = () => {
   router.push('/teacher/upload')
 }
 
-// 加载考试列表
+// 加载数据
 onMounted(async () => {
   const user = userStore.getUser()
   if (!user) {
@@ -90,10 +108,15 @@ onMounted(async () => {
   }
   
   try {
-    const res: any = await getExams({ teacher_id: user.id })
-    exams.value = res
+    // 加载班级列表
+    const classRes: any = await getClasses()
+    classes.value = classRes.classes || []
+    
+    // 加载考试列表
+    const examRes: any = await getExams({ teacher_id: user.id })
+    exams.value = examRes
   } catch (error) {
-    ElMessage.error('加载考试列表失败')
+    ElMessage.error('加载数据失败')
   }
 })
 </script>
