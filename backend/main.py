@@ -3,6 +3,7 @@
 """
 import os
 import sys
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -14,22 +15,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from database import init_db, SessionLocal, Student, Teacher, Exam, AnswerKey
 from routes import router
-
-# 创建FastAPI应用
-app = FastAPI(
-    title="试卷批改系统",
-    description="支持学生上传试卷自动批改，老师查看班级整体成绩报告",
-    version="1.0.0"
-)
-
-# CORS配置
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # 静态文件目录
 FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
@@ -103,22 +88,40 @@ def init_sample_data():
     finally:
         db.close()
 
-# 注册 API 路由（必须在静态文件挂载之前）
-app.include_router(router)
 
-
-@app.on_event("startup")
-async def startup_event():
-    """应用启动时初始化"""
-    # 初始化数据库
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用生命周期管理"""
+    # 启动时初始化
     init_db()
     print("数据库初始化完成")
-    
-    # 创建初始数据
     init_sample_data()
-    
     print(f"报告目录: {REPORTS_DIR}")
     print(f"目录是否存在: {os.path.exists(REPORTS_DIR)}")
+    yield
+    # 关闭时清理（如果需要）
+    print("应用关闭")
+
+
+# 创建FastAPI应用
+app = FastAPI(
+    title="试卷批改系统",
+    description="支持学生上传试卷自动批改，老师查看班级整体成绩报告",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# CORS配置
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 注册 API 路由（必须在静态文件挂载之前）
+app.include_router(router)
 
 
 # 静态文件路由处理
