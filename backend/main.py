@@ -14,14 +14,11 @@ os.environ["DB_PATH"] = os.path.join(DATA_DIR, "exam.db")
 # 添加后端目录到路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 
-from database import init_db, SessionLocal, Student, Teacher, Exam, AnswerKey
+from database import init_db, SessionLocal, Student, Teacher, Exam
 from routes import router
 
 # 静态文件目录
@@ -36,11 +33,12 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 def init_sample_data():
     """初始化示例数据"""
-    db = SessionLocal()
     try:
+        db = SessionLocal()
         # 检查是否已有数据
         if db.query(Teacher).first() is not None:
             print("数据已存在，跳过初始化")
+            db.close()
             return
         
         # 创建老师
@@ -85,40 +83,29 @@ def init_sample_data():
         
         db.commit()
         print("初始数据创建完成")
-        print(f"- 创建老师: {teacher.name}")
-        print(f"- 创建考试: {len(classes) * len(exam_types)} 场")
-        print(f"- 创建学生: {len(students_data)} 人")
-        
+        db.close()
     except Exception as e:
         print(f"初始化数据失败: {e}")
-        import traceback
-        traceback.print_exc()
-        db.rollback()
-    finally:
-        db.close()
+        try:
+            db.close()
+        except:
+            pass
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """应用生命周期管理"""
-    # 启动时初始化
-    print("正在初始化数据库...")
-    init_db()
-    print("数据库初始化完成")
-    init_sample_data()
-    print(f"数据目录: {DATA_DIR}")
-    print(f"报告目录: {REPORTS_DIR}")
-    yield
-    # 关闭时清理
-    print("应用关闭")
-
+# 在模块加载时初始化（不使用 lifespan）
+print("=" * 50)
+print("初始化数据库...")
+init_db()
+print("数据库初始化完成")
+init_sample_data()
+print(f"数据目录: {DATA_DIR}")
+print("=" * 50)
 
 # 创建FastAPI应用
 app = FastAPI(
     title="试卷批改系统",
     description="支持学生上传试卷自动批改，老师查看班级整体成绩报告",
-    version="1.0.0",
-    lifespan=lifespan
+    version="1.0.0"
 )
 
 # CORS配置
@@ -130,11 +117,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册 API 路由（必须在静态文件挂载之前）
+# 注册 API 路由
 app.include_router(router)
 
 
-# 静态文件路由处理
 @app.get("/reports/{file_path:path}")
 async def serve_report(file_path: str):
     """服务报告文件"""
@@ -159,37 +145,19 @@ async def root():
     index_path = os.path.join(FRONTEND_DIST, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    else:
-        return {"message": "试卷批改系统 API 服务运行中，请访问前端页面"}
+    return {"message": "试卷批改系统 API 服务运行中"}
 
 
-# SPA fallback - 放在最后
+# SPA fallback
 @app.get("/{path:path}")
 async def serve_frontend(path: str):
     """服务前端静态文件"""
-    # 尝试返回前端文件
     file_path = os.path.join(FRONTEND_DIST, path)
     if os.path.exists(file_path) and os.path.isfile(file_path):
         return FileResponse(file_path)
     
-    # 返回index.html（SPA路由）
     index_path = os.path.join(FRONTEND_DIST, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
     
     return JSONResponse(status_code=404, content={"error": "Not found"})
-
-
-if __name__ == "__main__":
-    # 获取端口
-    port = int(os.environ.get("DEPLOY_RUN_PORT", 5000))
-    
-    print(f"启动服务器，端口: {port}")
-    print(f"访问地址: http://localhost:{port}")
-    
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=port,
-        log_level="info"
-    )
