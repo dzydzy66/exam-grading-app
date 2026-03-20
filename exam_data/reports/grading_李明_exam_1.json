@@ -1,0 +1,121 @@
+{
+  "exam_info": {
+    "subject": "计算机组成与体系结构",
+    "total_score": 100,
+    "student_name": "李明",
+    "exam_date": "2026-03-20",
+    "class_name": "计算机2201班",
+    "teacher_name": "张老师"
+  },
+  "questions": [
+    {
+      "number": 1,
+      "type": "选择题",
+      "content": "下列哪个是质数？A. 4  B. 5  C. 6  D. 8",
+      "student_answer": "B",
+      "correct_answer": "B",
+      "score": 10,
+      "earned_score": 10,
+      "is_correct": true,
+      "analysis": "5只能被1和5整除，是质数。4、6、8都能被2整除，是合数。"
+    },
+    {
+      "number": 2,
+      "type": "选择题",
+      "content": "15 + 27 = ?",
+      "student_answer": "42",
+      "correct_answer": "42",
+      "score": 10,
+      "earned_score": 10,
+      "is_correct": true,
+      "analysis": "15 + 27 = 42，计算正确。"
+    },
+    {
+      "number": 3,
+      "type": "填空题",
+      "content": "100 - 36 = ____",
+      "student_answer": "错误答案",
+      "correct_answer": "64",
+      "score": 15,
+      "earned_score": 0,
+      "is_correct": false,
+      "analysis": "100 - 36 = 64。"
+    },
+    {
+      "number": 4,
+      "type": "填空题",
+      "content": "8 × 9 = ____",
+      "student_answer": "72",
+      "correct_answer": "72",
+      "score": 15,
+      "earned_score": 15,
+      "is_correct": true,
+      "analysis": "8 × 9 = 72。"
+    },
+    {
+      "number": 5,
+      "type": "计算题",
+      "content": "计算：125 + 375 = ?",
+      "student_answer": "错误答案",
+      "correct_answer": "500",
+      "score": 20,
+      "earned_score": 0,
+      "is_correct": false,
+      "analysis": "125 + 375 = 500。"
+    },
+    {
+      "number": 6,
+      "type": "计算题",
+      "content": "计算：1000 - 456 = ?",
+      "student_answer": "544",
+      "correct_answer": "544",
+      "score": 20,
+      "earned_score": 20,
+      "is_correct": true,
+      "analysis": "1000 - 456 = 544。"
+    },
+    {
+      "number": 7,
+      "type": "应用题",
+      "content": "小明有50元，买了3支铅笔，每支2元，还剩多少元？",
+      "student_answer": "44元",
+      "correct_answer": "44元",
+      "score": 10,
+      "earned_score": 10,
+      "is_correct": true,
+      "analysis": "50 - 3 × 2 = 50 - 6 = 44元。"
+    }
+  ],
+  "summary": {
+    "total_earned": 65,
+    "accuracy_rate": "71%",
+    "correct_count": 5,
+    "wrong_count": 2,
+    "score_distribution": {
+      "选择题": {
+        "earned": 20,
+        "total": 20,
+        "correct": 2,
+        "wrong": 0
+      },
+      "填空题": {
+        "earned": 15,
+        "total": 30,
+        "correct": 1,
+        "wrong": 1
+      },
+      "计算题": {
+        "earned": 20,
+        "total": 40,
+        "correct": 1,
+        "wrong": 1
+      },
+      "应用题": {
+        "earned": 10,
+        "total": 10,
+        "correct": 1,
+        "wrong": 0
+      }
+    }
+  }
+}
