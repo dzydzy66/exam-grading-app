@@ -3,7 +3,6 @@
 """
 import os
 import sys
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -89,26 +88,19 @@ def init_sample_data():
         db.close()
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """应用生命周期管理"""
-    # 启动时初始化
-    init_db()
-    print("数据库初始化完成")
-    init_sample_data()
-    print(f"报告目录: {REPORTS_DIR}")
-    print(f"目录是否存在: {os.path.exists(REPORTS_DIR)}")
-    yield
-    # 关闭时清理（如果需要）
-    print("应用关闭")
+# 在模块加载时初始化数据库和数据
+print("初始化数据库...")
+init_db()
+print("数据库初始化完成")
+init_sample_data()
+print(f"报告目录: {REPORTS_DIR}")
 
 
 # 创建FastAPI应用
 app = FastAPI(
     title="试卷批改系统",
     description="支持学生上传试卷自动批改，老师查看班级整体成绩报告",
-    version="1.0.0",
-    lifespan=lifespan
+    version="1.0.0"
 )
 
 # CORS配置
